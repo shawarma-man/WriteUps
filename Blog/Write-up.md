@@ -1,4 +1,6 @@
-# Tryhackme Blog
+# Tryhackme: Blog
+<img src="https://user-images.githubusercontent.com/87611022/174065126-3a6b22ce-2b40-47e9-b3fd-2dc8d42678a6.png" alt="Blog" width="200"/>
+
 ## _Billy Joel made a Wordpress blog!_
 
 As usual we start by enumerating the machine using a port scanner, one of my personal favorites is the Mayor's multi threader port scanner [Threader3000](https://github.com/dievus/threader3000).
@@ -135,7 +137,9 @@ We shift our efforts to the web server hosted on this machine on port 80, it's a
 Also from our port scan above we can see there's a **robots.txt** file which mentions a Disallowed entry: /_wp-admin_
 
 We navigate to /_wp-admin_ and try the user's we found using enum4linux **bjoel**
+
 ![image](https://user-images.githubusercontent.com/87611022/173656287-159cd0bd-c200-463a-98f7-af8d4ffe805b.png)
+
 we can see that's it's a valid username, also using [wpscan](https://wpscan.com/wordpress-security-scanner) we found some couple other usernames:
 ```
 [+] kwheel
