@@ -3,7 +3,7 @@
 
 ## _Billy Joel made a Wordpress blog!_
 
-As usual we start by enumerating the machine using a port scanner, one of my personal favorites is the Mayor's multi threader port scanner [Threader3000](https://github.com/dievus/threader3000).
+As usual we start by enumerating the machine using a port scanner, one of my personal favorites is the Mayor's multi threaded port scanner [Threader3000](https://github.com/dievus/threader3000).
 
 Anyways to the port scanning:
 ```
