@@ -1,4 +1,4 @@
-# Tryhackme: Blog
+# Tryhackme: [Blog](https://tryhackme.com/room/blog)
 <img src="https://user-images.githubusercontent.com/87611022/174065126-3a6b22ce-2b40-47e9-b3fd-2dc8d42678a6.png" alt="Blog" width="200"/>
 
 ## _Billy Joel made a Wordpress blog!_
