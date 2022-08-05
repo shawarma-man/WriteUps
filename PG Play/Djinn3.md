@@ -307,7 +307,7 @@ Analyzing the source files we can assume that there's a cron job running by the 
 
 We are a little short on details but here is what we know:
 * there is a cronjob that executes `syncer.py`
-* The program lists all json files in `/tmp` directory
+* The program lists all \*.config.json files in `/tmp` directory
 * The program will look for the most recent file which name is based on the date format and copy the content of the file indicated by the `URL` in the json file to the location indicated by `OUTPUT` by the same file
 
 So I created this json file with the current date and uploaded it to the `/tmp` directory on the victim machine:
