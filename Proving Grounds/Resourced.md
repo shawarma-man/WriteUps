@@ -387,4 +387,4 @@ Microsoft Windows [Version 10.0.17763.2145]
 C:\Windows\system32>
 ```
 
-That's it for this box it really challenging and fun, Thanks for reading through this writeup :)
+That's it for this box it was really challenging and fun, Thanks for reading through this writeup :)
